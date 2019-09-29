@@ -39,12 +39,40 @@ fshift = dft_shift*mask
 f_ishift = np.fft.ifftshift(fshift)
 img_back = cv.idft(f_ishift)
 img_back = cv.magnitude(img_back[:,:,0],img_back[:,:,1])
+
+mask5 = np.zeros((rows,cols,2),np.uint8)
+mask5[crow-15:crow+15, ccol-15:ccol+15] = 1
+
+# apply mask and inverse DFT
+fshift5 = dft_shift*mask5
+f_ishift5 = np.fft.ifftshift(fshift5)
+img_back5 = cv.idft(f_ishift5)
+img_back5 = cv.magnitude(img_back5[:,:,0],img_back5[:,:,1])
+
+
+mask150 = np.zeros((rows,cols,2),np.uint8)
+mask150[crow-100:crow+100, ccol-100:ccol+100] = 1
+
+# apply mask and inverse DFT
+fshift150 = dft_shift*mask150
+f_ishift150 = np.fft.ifftshift(fshift150)
+img_back150 = cv.idft(f_ishift150)
+img_back150 = cv.magnitude(img_back150[:,:,0],img_back150[:,:,1])
+
+
+
 plt.figure(figsize=(20,8))
 
 plt.subplot(231),plt.imshow(img, cmap = 'gray')
 plt.title('Input Image'), plt.xticks([]), plt.yticks([])
 plt.subplot(232),plt.imshow(magnitude_spectrum, cmap = 'gray')
 plt.title('Magnitude Spectrum'), plt.xticks([]), plt.yticks([])
-plt.subplot(233),plt.imshow(img_back, cmap = 'gray')
-plt.title('Magnitude Spectrum '), plt.xticks([]), plt.yticks([])
+plt.subplot(233),plt.imshow(img_back5, cmap = 'gray')
+plt.title('Magnitude Spectrum5 '), plt.xticks([]), plt.yticks([])
+
+plt.subplot(234),plt.imshow(img_back, cmap = 'gray')
+plt.title('Magnitude Spectrum50 '), plt.xticks([]), plt.yticks([])
+
+plt.subplot(235),plt.imshow(img_back150, cmap = 'gray')
+plt.title('Magnitude Spectrum150 '), plt.xticks([]), plt.yticks([])
 plt.show()
