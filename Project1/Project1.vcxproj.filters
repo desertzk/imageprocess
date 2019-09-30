@@ -18,5 +18,8 @@
     <ClCompile Include="first.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="fourier.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

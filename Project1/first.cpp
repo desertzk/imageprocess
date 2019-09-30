@@ -17,6 +17,160 @@ using namespace std;
 using namespace cv;
 
 
+
+//降低灰度分辨率
+int main(int argc, char** argv)
+{
+
+	Mat image, _dst;
+	image = imread("lena_top.jpg", IMREAD_GRAYSCALE); // Read the file
+	if (image.empty()) // Check for invalid input
+	{
+		cout << "Could not open or find the image" << std::endl;
+		return -1;
+	}
+
+	_dst.create(image.size(), image.type());
+	int RowsNum = image.rows;
+	int nc = image.cols * image.channels();
+	int ColsNum = image.cols;
+	uchar* output = _dst.ptr<uchar>(0);
+	int dstRownum = RowsNum / 4;
+	for (int i = 0; i < RowsNum; i++)
+	{
+		
+		if (i % 4 != 0)
+			continue;
+		output = _dst.ptr<uchar>(i/4);  // 输出行
+		auto pix = image.ptr<uchar>(i);
+		//灰度分辨率降低四倍
+		for (int j = 0; j < nc; j++)
+		{
+			if(j%4==0)
+				*output++ = pix[j];
+			
+			
+		}
+	}
+
+
+
+	//cv::imwrite("gray_image.jpg", gray_image);
+	//imwrite("D:/1.jpg",);
+	waitKey(0); // Wait for a keystroke in the window
+	return 0;
+}
+
+
+
+//主函数
+int mainfouriercenter(void)
+{
+	//读取原始图像
+	Mat srcImage = imread("lena_top.jpg", 0);//灰度
+	imshow("original", srcImage);
+
+	//将输入图像延扩至最佳尺寸，边界用0填充
+	int m = getOptimalDFTSize(srcImage.rows);
+	int n = getOptimalDFTSize(srcImage.cols);
+
+	Mat padded;//定义填充后的图像
+	copyMakeBorder(srcImage, padded, 0, m - srcImage.rows, 0, n - srcImage.cols, BORDER_CONSTANT, Scalar::all(0));
+
+	imshow("padded image", padded);
+
+
+
+	//为傅里叶变换的结果分配存储空间
+	Mat planes[] = { Mat_<float>(padded),Mat::zeros(padded.size(),CV_32F) };
+	Mat complexI;//将planes数组组合合并成一个多通道的数组complexI
+	merge(planes, 2, complexI);
+
+	//进行离散傅里叶变换
+	dft(complexI, complexI);
+
+	//将复数转换为幅值magitude
+	split(complexI, planes);//将多通道数组complexI分离为几个单通道数组,planes[0]=Re(DFT(I),planes[1]=Im(DFT(I)));re是实数，Im是复数吧
+
+	magnitude(planes[0], planes[1], planes[0]);
+	Mat magnitudeImage = planes[0];
+
+
+
+	//进行对数尺度缩放
+	magnitudeImage += Scalar::all(1);
+	log(magnitudeImage, magnitudeImage);//求自然对数
+
+	//剪切和重分布幅度图象限（若有奇数行或奇数列，进行频谱裁剪）
+	magnitudeImage = magnitudeImage(Rect(0, 0, magnitudeImage.cols & -2, magnitudeImage.rows & -2));
+
+	//重新排列傅里叶图像中的象限，使得原点位于图像中心
+	int cx = magnitudeImage.cols / 2;
+	int cy = magnitudeImage.rows / 2;
+	Mat q0(magnitudeImage, Rect(0, 0, cx, cy));//ROI区域的左上
+	Mat q1(magnitudeImage, Rect(cx, 0, cx, cy));//ROI区域的右上
+	Mat q2(magnitudeImage, Rect(0, cy, cx, cy));//ROI区域的左下
+	Mat q3(magnitudeImage, Rect(cx, cy, cx, cy));//ROI区域的左上
+
+	Mat tmp;//交换象限(左上与右下进行交换)
+	q0.copyTo(tmp);
+	q3.copyTo(q0);
+	tmp.copyTo(q3);
+
+
+	q1.copyTo(tmp);//右上与左下进行交换
+	q2.copyTo(q1);
+	tmp.copyTo(q2);
+
+	//归一化，用0到1之间的浮点值，将矩阵变幻为可视的图像格式
+
+	normalize(magnitudeImage, magnitudeImage, 0, 1, NORM_MINMAX);
+	imshow("MAGNITUDE", magnitudeImage);
+
+	waitKey(0); // Wait for a keystroke in the window
+	return(0);
+
+
+
+}
+
+
+//傅立叶变换，显示频谱fourierTransform
+int mainfstackoverflow()
+{
+	// Load an image
+	cv::Mat inputImage = cv::imread("lena_top.jpg", IMREAD_GRAYSCALE);
+
+	// Go float
+	cv::Mat fImage;
+	inputImage.convertTo(fImage, CV_32F);
+
+	// FFT
+	std::cout << "Direct transform...\n";
+	cv::Mat fourierTransform;
+	cv::dft(fImage, fourierTransform, cv::DFT_SCALE | cv::DFT_COMPLEX_OUTPUT);
+
+	// Some processing
+	//doSomethingWithTheSpectrum();
+
+	// IFFT
+	std::cout << "Inverse transform...\n";
+	cv::Mat inverseTransform;
+	cv::dft(fourierTransform, inverseTransform, cv::DFT_INVERSE | cv::DFT_REAL_OUTPUT);
+
+	// Back to 8-bits
+	cv::Mat finalImage;
+	inverseTransform.convertTo(finalImage, CV_8U);
+	waitKey(0); // Wait for a keystroke in the window
+	return 0;
+}
+
+
+
+
+
+
+
 /*
 	laplace算子
 	 0    -1    0
@@ -184,7 +338,7 @@ int main0921(int argc, char** argv)
 	int ColsNum = image.cols;
 	map<int, int> grayscalemap;
 	//直方图均衡化
-	equalizeHist(image, uselibdst);
+	//equalizeHist(image, uselibdst);
 	for (int i = 0; i < RowsNum; i++)
 	{
 		auto pix = image.ptr<uchar>(i);
