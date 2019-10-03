@@ -61,6 +61,17 @@ img_back150 = cv.magnitude(img_back150[:,:,0],img_back150[:,:,1])
 
 
 
+masksharp = np.ones((rows,cols,2),np.uint8)
+masksharp[crow-100:crow+100, ccol-100:ccol+100] = 0
+
+# apply mask and inverse DFT
+fshiftsharp = dft_shift*masksharp
+f_ishiftsharp = np.fft.ifftshift(fshiftsharp)
+img_backsharp = cv.idft(f_ishiftsharp)
+img_backsharp = cv.magnitude(img_backsharp[:,:,0],img_backsharp[:,:,1])
+
+
+
 plt.figure(figsize=(20,8))
 
 plt.subplot(231),plt.imshow(img, cmap = 'gray')
@@ -74,5 +85,8 @@ plt.subplot(234),plt.imshow(img_back, cmap = 'gray')
 plt.title('Magnitude Spectrum50 '), plt.xticks([]), plt.yticks([])
 
 plt.subplot(235),plt.imshow(img_back150, cmap = 'gray')
+plt.title('Magnitude Spectrum150 '), plt.xticks([]), plt.yticks([])
+
+plt.subplot(236),plt.imshow(img_backsharp, cmap = 'gray')
 plt.title('Magnitude Spectrum150 '), plt.xticks([]), plt.yticks([])
 plt.show()
