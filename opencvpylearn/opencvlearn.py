@@ -17,6 +17,8 @@ def magnitude_spectrum_picture():
 
 
 
+
+
 img = cv.imread('../Project1/lena_top.jpg',0)
 
 dft = cv.dft(np.float32(img),flags = cv.DFT_COMPLEX_OUTPUT)
@@ -85,8 +87,8 @@ plt.subplot(234),plt.imshow(img_back, cmap = 'gray')
 plt.title('Magnitude Spectrum50 '), plt.xticks([]), plt.yticks([])
 
 plt.subplot(235),plt.imshow(img_back150, cmap = 'gray')
-plt.title('Magnitude Spectrum150 '), plt.xticks([]), plt.yticks([])
+plt.title('Magnitude Spectrum 150 '), plt.xticks([]), plt.yticks([])
 
 plt.subplot(236),plt.imshow(img_backsharp, cmap = 'gray')
-plt.title('Magnitude Spectrum150 '), plt.xticks([]), plt.yticks([])
+plt.title('Magnitude sharp 150 '), plt.xticks([]), plt.yticks([])
 plt.show()

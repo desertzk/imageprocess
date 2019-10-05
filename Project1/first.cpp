@@ -1,70 +1,133 @@
-﻿#include <opencv2/core.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/highgui.hpp>
-#include "opencv2/opencv.hpp"
-#include <iostream>
-#include <opencv2/imgproc/imgproc.hpp>
-
-// C++ Standard Libraries
-#include <cmath>
-#include <iostream>
-#include <stdexcept>
-#include <vector>
-#include <cmath> 
-#include <numeric>
-#include<algorithm>
+﻿#include"imageprocess.h"
 using namespace std;
 using namespace cv;
 
 
-
-//降低灰度分辨率
-int main(int argc, char** argv)
+inline uchar Clamp(int n)
 {
-
-	Mat image, _dst;
-	image = imread("lena_top.jpg", IMREAD_GRAYSCALE); // Read the file
-	if (image.empty()) // Check for invalid input
+	n = n > 255 ? 255 : n;
+	return n < 0 ? 0 : n;
+}
+//高斯噪声
+bool AddGaussianNoise(const Mat mSrc, Mat& mDst, double Mean, double StdDev)
+{
+	if (mSrc.empty())
 	{
-		cout << "Could not open or find the image" << std::endl;
-		return -1;
+		cout << "[Error]! Input Image Empty!";
+		return 0;
 	}
 
-	_dst.create(image.size(), image.type());
-	int RowsNum = image.rows;
-	int nc = image.cols * image.channels();
-	int ColsNum = image.cols;
-	uchar* output = _dst.ptr<uchar>(0);
-	int dstRownum = RowsNum / 4;
-	for (int i = 0; i < RowsNum; i++)
+	Mat mGaussian_noise = Mat(mSrc.size(), CV_16SC3);
+	randn(mGaussian_noise, Scalar::all(Mean), Scalar::all(StdDev));
+
+	for (int Rows = 0; Rows < mSrc.rows; Rows++)
 	{
-		
-		if (i % 4 != 0)
-			continue;
-		output = _dst.ptr<uchar>(i/4);  // 输出行
-		auto pix = image.ptr<uchar>(i);
-		//灰度分辨率降低四倍
-		for (int j = 0; j < nc; j++)
+		for (int Cols = 0; Cols < mSrc.cols; Cols++)
 		{
-			if(j%4==0)
-				*output++ = pix[j];
-			
-			
+			Vec3b Source_Pixel = mSrc.at<Vec3b>(Rows, Cols);
+			Vec3b& Des_Pixel = mDst.at<Vec3b>(Rows, Cols);
+			Vec3s Noise_Pixel = mGaussian_noise.at<Vec3s>(Rows, Cols);
+
+			for (int i = 0; i < 3; i++)
+			{
+				int Dest_Pixel = Source_Pixel.val[i] + Noise_Pixel.val[i];
+				Des_Pixel.val[i] = Clamp(Dest_Pixel);
+			}
 		}
 	}
 
+	return true;
+}
+
+bool AddGaussianNoise_Opencv(const Mat mSrc, Mat& mDst, double Mean, double StdDev)
+{
+	if (mSrc.empty())
+	{
+		cout << "[Error]! Input Image Empty!";
+		return 0;
+	}
+	Mat mSrc_16SC;
+	Mat mGaussian_noise = Mat(mSrc.size(), CV_16SC3);
+	randn(mGaussian_noise, Scalar::all(Mean), Scalar::all(StdDev));
+
+	mSrc.convertTo(mSrc_16SC, CV_16SC3);
+	addWeighted(mSrc_16SC, 1.0, mGaussian_noise, 1.0, 0.0, mSrc_16SC);
+	mSrc_16SC.convertTo(mDst, mSrc.type());
+
+	return true;
+}
 
 
-	//cv::imwrite("gray_image.jpg", gray_image);
-	//imwrite("D:/1.jpg",);
-	waitKey(0); // Wait for a keystroke in the window
-	return 0;
+//几何均值滤波
+void GeoAverFliter(const Mat& src, Mat& dst) {
+	Mat _dst(src.size(), CV_32FC1);
+	double power = 1.0 / 9;
+	cout << "power:" << power << endl;
+	double geo = 1;
+	int step = src.channels();
+	if (src.channels() == 1) {
+		for (int i = 0; i < src.rows; i++) {
+			for (int j = 0; j < src.cols* step; j+= step) {
+				if ((i - 1) > 0 && (i + 1) < src.rows && (j - 1) > 0 && (j + 1) < src.cols) {
+					if (src.at<uchar>(i, j) != 0) geo = geo * src.at<uchar>(i, j);
+					if (src.at<uchar>(i + 1, j + 1) != 0) geo = geo * src.at<uchar>(i + 1, j + 1);
+					if (src.at<uchar>(i + 1, j) != 0) geo = geo * src.at<uchar>(i + 1, j);
+					if (src.at<uchar>(i, j + 1) != 0) geo = geo * src.at<uchar>(i, j + 1);
+					if (src.at<uchar>(i + 1, j - 1) != 0) geo = geo * src.at<uchar>(i + 1, j - 1);
+					if (src.at<uchar>(i - 1, j + 1) != 0) geo = geo * src.at<uchar>(i - 1, j + 1);
+					if (src.at<uchar>(i - 1, j) != 0) geo = geo * src.at<uchar>(i - 1, j);
+					if (src.at<uchar>(i, j - 1) != 0) geo = geo * src.at<uchar>(i, j - 1);
+					if (src.at<uchar>(i - 1, j - 1) != 0) geo = geo * src.at<uchar>(i - 1, j - 1);
+					/*geo = src.at<uchar>(i, j)* src.at<uchar>(i + 1, j + 1)* src.at<uchar>(i + 1, j)* src.at<uchar>(i, j + 1)*
+						src.at<uchar>(i + 1, j - 1)* src.at<uchar>(i - 1, j + 1)* src.at<uchar>(i - 1, j)*
+						src.at<uchar>(i, j - 1)* src.at<uchar>(i - 1, j - 1);*/
+					_dst.at<float>(i, j) = pow(geo, power);
+					geo = 1;
+					//if (i % 10 == 0&&j%10==0)
+						//printf("_dst.at<float>(%d, %d)=%f\n", i, j, _dst.at<float>(i, j));
+
+
+				}
+				else
+					_dst.at<float>(i, j) = src.at<uchar>(i, j);
+			}
+		}
+	}
+	_dst.convertTo(dst, CV_8UC1);
+
+	//_dst.copyTo(dst);//拷贝
+	imshow("geoAverFilter", dst);
+}
+
+//
+int main20191005()
+{
+	//Mat srcImage = imread("lena_top.jpg", 0);//灰度
+	Mat mSource = imread("lena_top.jpg", 1);
+	imshow("Source Image", mSource);
+
+	Mat mColorNoise(mSource.size(), mSource.type());
+	Mat dstNoise(mSource.size(), mSource.type());
+
+	//AddGaussianNoise(mSource, dstNoise, 0, 10.0);
+
+	//imshow("Source + Color Noise", mColorNoise);
+
+
+	AddGaussianNoise_Opencv(mSource, mColorNoise, 0, 10.0);//I recommend to use this way!
+
+	imshow("Source + Color Noise OpenCV", mColorNoise);
+
+	Mat geofliter;
+	GeoAverFliter(mColorNoise, geofliter);
+	waitKey();
+	return(0);
 }
 
 
 
 //主函数
-int mainfouriercenter(void)
+int mainfourierfreq(void)
 {
 	//读取原始图像
 	Mat srcImage = imread("lena_top.jpg", 0);//灰度
@@ -274,7 +337,7 @@ int mainsharp(int argc, char** argv)
 }
 
 //椒盐噪声
-void addnoise(Mat &image)
+void addnoise(Mat &image,int noisevalue)
 {
 	int RowsNum = image.rows;
 	int nc = image.cols * image.channels();
@@ -286,7 +349,7 @@ void addnoise(Mat &image)
 		int y = rand() % nc;
 		//vnoise.push_back(make_pair(x,y));
 		auto pix = image.ptr<uchar>(x);
-		pix[y] = 255;
+		pix[y] = noisevalue;
 	}
 }
 
@@ -303,7 +366,7 @@ int main0922(int argc, char** argv)
 	}
 	//namedWindow("Display window", WINDOW_AUTOSIZE); // Create a window for display.
 	//imshow("Display window", image); // Show our image inside it.
-	addnoise(image);
+	addnoise(image,255);
 	Mat result;
 	midvalue(image, result);
 
@@ -524,6 +587,49 @@ int main3(int argc, char** argv)
 
 
 
+
+//降低灰度分辨率
+int mainfirst(int argc, char** argv)
+{
+
+	Mat image, _dst;
+	image = imread("lena_top.jpg", IMREAD_GRAYSCALE); // Read the file
+	if (image.empty()) // Check for invalid input
+	{
+		cout << "Could not open or find the image" << std::endl;
+		return -1;
+	}
+
+	_dst.create(image.size(), image.type());
+	int RowsNum = image.rows;
+	int nc = image.cols * image.channels();
+	int ColsNum = image.cols;
+	uchar* output = _dst.ptr<uchar>(0);
+	int dstRownum = RowsNum / 4;
+	for (int i = 0; i < RowsNum; i++)
+	{
+
+		if (i % 4 != 0)
+			continue;
+		output = _dst.ptr<uchar>(i / 4);  // 输出行
+		auto pix = image.ptr<uchar>(i);
+		//灰度分辨率降低四倍
+		for (int j = 0; j < nc; j++)
+		{
+			if (j % 4 == 0)
+				* output++ = pix[j];
+
+
+		}
+	}
+
+
+
+	//cv::imwrite("gray_image.jpg", gray_image);
+	//imwrite("D:/1.jpg",);
+	waitKey(0); // Wait for a keystroke in the window
+	return 0;
+}
 
 
 

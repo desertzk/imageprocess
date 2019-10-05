@@ -1,17 +1,4 @@
-﻿  first.cpp
-D:\cppworkspace\imageprocess\Project1\first.cpp(394,54): warning C4244:  '=': conversion from '_Ty2' to 'int', possible loss of data
-D:\cppworkspace\imageprocess\Project1\first.cpp(394,54): warning C4244:         with
-D:\cppworkspace\imageprocess\Project1\first.cpp(394,54): warning C4244:         [
-D:\cppworkspace\imageprocess\Project1\first.cpp(394,54): warning C4244:             _Ty2=double
-D:\cppworkspace\imageprocess\Project1\first.cpp(394,54): warning C4244:         ]
-D:\cppworkspace\imageprocess\Project1\first.cpp(505,13): warning C4244:  '=': conversion from 'double' to '_Tp', possible loss of data
-D:\cppworkspace\imageprocess\Project1\first.cpp(505,13): warning C4244:         with
-D:\cppworkspace\imageprocess\Project1\first.cpp(505,13): warning C4244:         [
-D:\cppworkspace\imageprocess\Project1\first.cpp(505,13): warning C4244:             _Tp=uchar
-D:\cppworkspace\imageprocess\Project1\first.cpp(505,13): warning C4244:         ]
-D:\cppworkspace\imageprocess\Project1\first.cpp(555,13): warning C4244:  '=': conversion from 'double' to '_Tp', possible loss of data
-D:\cppworkspace\imageprocess\Project1\first.cpp(555,13): warning C4244:         with
-D:\cppworkspace\imageprocess\Project1\first.cpp(555,13): warning C4244:         [
-D:\cppworkspace\imageprocess\Project1\first.cpp(555,13): warning C4244:             _Tp=uchar
-D:\cppworkspace\imageprocess\Project1\first.cpp(555,13): warning C4244:         ]
+﻿  filter.cpp
+D:\cppworkspace\imageprocess\Project1\filter.cpp(98,9): warning C4244:  'initializing': conversion from 'float' to 'int', possible loss of data
+D:\cppworkspace\imageprocess\Project1\filter.cpp(156,28): warning C4305:  'argument': truncation from 'double' to 'float'
   Project1.vcxproj -> D:\opencv\ocvlib\Build\opencv\x64\Debug\Project1.exe
