@@ -137,6 +137,7 @@
     <ClCompile Include="filter.cpp" />
     <ClCompile Include="first.cpp" />
     <ClCompile Include="fourier.cpp" />
+    <ClCompile Include="hsimodel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imageprocess.h" />

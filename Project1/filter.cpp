@@ -133,7 +133,7 @@ public:
 
 
 
-int main()
+int main1007()
 {
 	Mat mSource = imread("lena_top.jpg", 1);
 	imshow("Source Image", mSource);

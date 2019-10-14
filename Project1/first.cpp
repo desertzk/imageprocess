@@ -354,7 +354,7 @@ void addnoise(Mat &image,int noisevalue)
 }
 
 //add noise 椒盐噪声
-int main0922(int argc, char** argv)
+int mainaddnoise(int argc, char** argv)
 {
 
 	Mat image;
