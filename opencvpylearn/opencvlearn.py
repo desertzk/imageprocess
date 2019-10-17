@@ -62,7 +62,7 @@ img_back150 = cv.idft(f_ishift150)
 img_back150 = cv.magnitude(img_back150[:,:,0],img_back150[:,:,1])
 
 
-
+# 高通 反应细节
 masksharp = np.ones((rows,cols,2),np.uint8)
 masksharp[crow-100:crow+100, ccol-100:ccol+100] = 0
 

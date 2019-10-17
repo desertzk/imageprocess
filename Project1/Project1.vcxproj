@@ -138,6 +138,7 @@
     <ClCompile Include="first.cpp" />
     <ClCompile Include="fourier.cpp" />
     <ClCompile Include="hsimodel.cpp" />
+    <ClCompile Include="histogramlearn.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imageprocess.h" />

@@ -378,7 +378,7 @@ int mainaddnoise(int argc, char** argv)
 
 
 //直方图均衡化
-int main0921(int argc, char** argv)
+int mainequalizeHist(int argc, char** argv)
 {
 
 	Mat image, dst, uselibdst;
@@ -428,6 +428,8 @@ int main0921(int argc, char** argv)
 		double probability = it->second / totalpix;
 		pr[it->first] = probability;
 	}
+
+	
 	//sk
 	map<int, double> sk;
 	auto itnext = ++pr.begin();
@@ -447,6 +449,18 @@ int main0921(int argc, char** argv)
 	}
 	auto penult = sk.crbegin()->second;
 	sk.insert(make_pair(it->first, it->second + penult));
+
+	int Channels[] = { 0 };
+	int nHistSize[] = { 256 };
+	float range[] = { 0, 256 };
+	const float* fHistRanges[] = { range };
+	Mat histnum, histpr, hissumpr;
+	//cv标准库算出来的就好比我算出来的 grayscalemap
+	calcHist(&image, 1, Channels, Mat(), histnum, 1, nHistSize, fHistRanges, true, false);
+	//cv标准库算出来的就好比我算出来的 pr 对应概率
+	normalize(histnum, histpr, 1.0, 0.0, NORM_L1);
+	
+
 	//这个不是现有像素的最小值最大值 ，而是你要变化的范围
 	int maxpix = 255;//pr.rbegin()->first;
 	int minpix = 0;//pr.begin()->first;

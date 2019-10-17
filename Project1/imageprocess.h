@@ -5,7 +5,9 @@
 #include "opencv2/opencv.hpp"
 #include <iostream>
 #include <opencv2/imgproc/imgproc.hpp>
+#include "opencv2/core/core.hpp"
 
+#include "opencv2/highgui/highgui.hpp"
 // C++ Standard Libraries
 #include <cmath>
 #include <iostream>
