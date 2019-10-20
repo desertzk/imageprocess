@@ -5,9 +5,60 @@
 using namespace cv;
 using namespace std;
 
+//提取一副彩色图像中红色，用HIS模型处理(HSI分割)
 
+#define PI 3.14159265
 
+//may error
+Mat HSIToRGB(const Mat& src)
+{
+	Mat hsi(src.rows, src.cols, src.type());
+	double up, down = 0.0;
+	for (int i = 0; i < src.rows; i++)
+	{
+		for (int j = 0; j < src.cols; j++)
+		{
+			double r = 0, g = 0, b = 0;
+			int huepix = src.at<Vec3b>(i, j)[0];
+			double huedegree = static_cast<double>(huepix) / 255 * 360;
+			double hue = huedegree / 360;
+			int saturationpix = src.at<Vec3b>(i, j)[1];
+			double saturation = static_cast<double>(saturationpix) / 255;
+			int intensitypix = src.at<Vec3b>(i, j)[2];
+			double intensity = static_cast<double>(intensitypix) / 255;
+			if (0 <= huedegree && huedegree < 120)
+			{
+				b = intensity*(1- saturation);
+				
+				r = intensity*(1+ saturation*cos(hue)/cos(PI/3-hue));
+				g = 3 * intensity - (r + b);
+			}
+			else if (120 <= huedegree && huedegree < 240)
+			{
+				hue = (huedegree - 120) / 360;
+				r= intensity * (1 - saturation);
+				g = intensity * (1 + saturation * cos(hue) / cos(PI / 3 - hue));
+				b = 3 * intensity - (r + g);
+			}
+			else if (240 <= huedegree && huedegree < 360)
+			{
+				hue = (huedegree - 240) / 360;
+				g = intensity * (1 - saturation);
+				b = intensity * (1 + saturation * cos(hue) / cos(PI / 3 - hue));
+				r= 3 * intensity - (g + b);
+			}
+			
+		
 
+			hsi.at<Vec3b>(i, j)[0] = b* 255;
+			hsi.at<Vec3b>(i, j)[1] = g * 255;
+			hsi.at<Vec3b>(i, j)[2] = r * 255;
+
+		}
+	}
+
+	return hsi;
+}
 
 
 //cv::cvtColor(dark, darkHSV, cv::COLOR_BGR2HSV);
@@ -15,7 +66,7 @@ using namespace std;
 int main()
 {
 	//testhsi();
-	Mat src = imread("space_splite.png", 1);
+	Mat src = imread("cartoon.png", 1);
 	//Mat src = imread("splite.png", 1);
 	
 	//auto hsvImg = img.clone();
@@ -50,14 +101,14 @@ int main()
 				hue = hue;
 			}
 			else {
-				hue = ((360 * 3.14159265) / 180.0) - hue;
+				hue = ((360 * PI) / 180.0) - hue;
 			}
 			
 			//当saturation为0时对应的是无色彩的中心点，此时hue没有意义也定义为0
 			if (saturation == 0)
 				hue = 0;
 
-			double degree = (hue * 180) / 3.14159265;
+			double degree = (hue * 180) / PI;
 
 			hsi.at<Vec3b>(i, j)[0] = degree/360*255;
 			hsi.at<Vec3b>(i, j)[1] = saturation * 255;
@@ -132,6 +183,7 @@ int main()
 		
 	}
 
+	vector<pair<int, int>> notred;
 	//红色分量的分割
 	Mat retvalue = mutiSvalue.clone();
 	for (int i = 0; i < retvalue.rows; i++)
@@ -144,12 +196,27 @@ int main()
 			if (curpix < thresholdpix)
 			{
 				row[j] = 0;
-				
+				notred.push_back(make_pair(i, j));
 			}
 		}
 	}
+	Mat nowhsi = src.clone();
+	for (auto index : notred)
+	{
+		int i = index.first;
+		int j = index.second;
+		src.at<Vec3b>(i, j) = Vec3b(0, 0, 0);
+	}
 
+	//Mat nowhsi;
+	//channels[0] = retvalue;
+	//merge(channels, nowhsi);
+	//
+	////hsi反运算转RGB
+	//Mat retrgb = HSIToRGB(nowhsi);
 	return 0;
 }
+
+
 
 
