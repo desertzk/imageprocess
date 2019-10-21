@@ -3,8 +3,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 # 对一副图像进行傅立叶变换，显示频谱，取其5，50，150为截至频率，进行频率域平滑，锐化，显示图像
-
-
 img = cv.imread('../Project1/lena_top.jpg',0)
 
 dft = cv.dft(np.float32(img),flags = cv.DFT_COMPLEX_OUTPUT)

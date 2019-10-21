@@ -133,7 +133,7 @@ public:
 
 
 
-int main1007()
+int main()
 {
 	Mat mSource = imread("lena_top.jpg", 1);
 	imshow("Source Image", mSource);
@@ -153,7 +153,7 @@ int main1007()
 	//初始化IR类
 	ImageRecovery IR;
 	//加入椒盐噪声
-	IR.salt(mColorNoise, 0.1,0);
+	IR.salt(mColorNoise, 0.02,0);
 	//imshow("salt", img);
 	//对噪声图片进行滤波
 	Mat resultaver = IR.filter(mColorNoise, "aver", Size(3, 3));

@@ -63,7 +63,7 @@ Mat HSIToRGB(const Mat& src)
 
 //cv::cvtColor(dark, darkHSV, cv::COLOR_BGR2HSV);
 //3chanel
-int main()
+int main1021()
 {
 	//testhsi();
 	Mat src = imread("cartoon.png", 1);
